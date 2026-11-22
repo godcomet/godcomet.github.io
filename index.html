@@ -212,7 +212,7 @@ footer b{font-family:var(--font-display);color:var(--fg)}
       <nav class="nav" aria-label="섹션">
         <a href="#experience">Experience</a><a href="#projects">Projects</a><a href="#skills">Skills</a><a href="#contact">Contact</a>
       </nav>
-      <a class="track" href="ai/">AI Service 버전</a>
+      <a class="track" href="ai/">AI/ML 버전</a>
       <button class="toggle" id="themeBtn" aria-label="밝기 모드 전환">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
       </button>
@@ -302,7 +302,8 @@ footer b{font-family:var(--font-display);color:var(--fg)}
       <ul class="pts">
         <li>전공 평점 3.79, <b>2025년 이후 전공 평점 3.95</b> (42학점)</li>
         <li>소프트웨어융합캡스톤 <b>우수상</b> (JANGBOGO AI 쇼핑 어시스턴트, 5인 팀)</li>
-        <li>인공지능과자율주행 RC카 최종 프로젝트 <b>1등</b></li>
+        <li>인공지능과자율주행 RC카 최종 프로젝트 <b>1등</b> (팀장, 4인 팀)</li>
+        <li>시각지능학습 CIFAR-100 분류 챌린지 <b>1등</b> (4인 팀, 7주차 Top-1 85.99%, Super-Class 92.64%)</li>
         <li>음성인식 프로젝트 최종 시연에서 테스터 고려인 아동 <b>최다 득표</b></li>
       </ul>
       <h4>로봇·자율주행 관련 과목</h4>
@@ -383,13 +384,33 @@ const PROJECTS=[
 {id:"rc",big:"RC Car.",video:"media/rc_track.mp4",poster:"media/rc_track.jpg",
  clips:[["media/rc_track.mp4","media/rc_track.jpg","트랙 완주 영상","tall"],["media/rc_camera.mp4","media/rc_camera.jpg","주행 중 카메라 화면 · 차선 추종, YOLO 객체 인식, 정지 판단",""]],
  kicker:"YOLO, 색상 판별, LiDAR 거리로 신호등을 이중 검증하는 RC카 자율주행",title:"RC카 자율주행",badge:["1등 · A+","green"],
- kv:[["기간","3학년 2학기"],["과목","인공지능과자율주행"],["결과","최종 프로젝트 1등"]],
- tags:["ROS1","OpenCV","PyTorch","YOLO","2D LiDAR"],
+ kv:[["기간","3학년 2학기"],["과목","인공지능과자율주행"],["역할","팀장 · 4인 팀"],["결과","최종 프로젝트 1등"]],
+ tags:["ROS1","OpenCV","PyTorch","YOLOv5","RPLidar","Jetson"],
  eyebrow:"Autonomous Driving · Course Project",h:"RC카 자율주행 트랙 완주 (최종 1등)",
- summary:"신호등 학습 이미지가 부족해 YOLO가 오인식·미검출을 반복하고, 검출 즉시 반응해 정지 위치가 어긋났습니다. 서로 다른 정보로 이중 검증하도록 구조를 바꿨습니다.",
- flow:[["YOLO","신호등 검출"],["OpenCV","색상 판별"],["LiDAR","거리 확인"],["정지","일정 거리 안에서만"]],
- cols:[["내 담당",["OpenCV 차선 인식","센서 퓨전·통합 제어","YOLO 학습 파이프라인 구축"]],["검증 방식",["주행 영상 녹화","목표 경로와 실제 경로 비교·수치화","결과로 파라미터 조정"]],["문제",["학습 이미지 부족","오인식·미검출 반복","정지 위치 불일치"]]],
+ summary:"팀장으로 차선 인식, YOLOv5 학습, LiDAR 융합 정지 로직을 맡았습니다. 학습을 거듭해 mAP@0.5를 0.749에서 0.85 이상으로 올렸지만 초록불 오분류가 남아, 데이터를 더 모으는 대신 신호등 색을 다시 판단하는 알고리즘과 LiDAR 거리 조건을 더해 신호등 인식 정확도를 99% 수준으로 끌어올렸습니다.",
+ flow:[["YOLOv5","신호등·표지판 검출"],["색상 재판단","박스 3분할 밝기"],["LiDAR","전방 ±45° 거리"],["정지","60~70cm 이내에서만"]],
+ cols:[["내 담당",["Lab L채널·Otsu 차선 인식","YOLOv5 학습 환경·파이프라인 구축","YOLO+LiDAR 융합 정지 로직"]],["개선 결과",["mAP@0.5 0.749 → 0.85+ (200 epoch, Mosaic·HSV 증강)","신호등 인식 정확도 99% 수준","원거리 배경 객체에 의한 급정지 제거"]],["검증 방식",["주행 영상 녹화","목표 경로와 실제 경로 비교·수치화","결과로 파라미터 조정"]]],
+ trouble:[["그림자·조명 변화에 차선 미검출","BGR 대신 Lab L채널, Otsu 자동 임계값, 모폴로지로 끊긴 차선 연결, 하단 1/3 ROI"],["작은 신호등·표지판 재현율 저조","epoch 100 → 200, batch 16, Mosaic·HSV 증강으로 mAP@0.5 0.749 → 0.85+"],["초록불을 다른 색으로 오분류","YOLO 박스를 상·중·하로 나눠 밝기(V)와 색 성분으로 점등 색을 재판단"],["멀리 있는 배경 객체에도 급정지","빨간불은 60cm, 사람은 70cm 이내일 때만 정지하도록 LiDAR 거리를 AND 조건으로 결합"]],
  take:"하나의 모델에 의존하지 않고 서로 다른 정보의 강점을 결합하면 신뢰성이 높아집니다."},
+{id:"objdet",big:"Detection.",img:"media/od_pred.jpg",
+ clips:[["media/od_pred.jpg","","검증 이미지 예측 결과 · 속도 제한(40/80)과 출발 표지 검출","img"],["media/od_results.jpg","","150 epoch 학습 곡선 · box·obj·cls loss와 Precision·Recall·mAP 변화","img"],["media/od_pr.jpg","","클래스별 Precision-Recall 곡선","img"]],
+ kicker:"기업 멘토와 함께 신호등·표지판·보행자 데이터를 직접 라벨링하고 학습한 YOLOv5 객체 인식",title:"자율주행 객체 인식",badge:["mAP@0.5 0.90","blue"],
+ kv:[["기간","2학년 2학기"],["과목","인공지능실습 (A)"],["팀","5인 · 기업 멘토 HUINS"]],
+ tags:["Python","PyTorch","YOLOv5","labelImg","Data Labeling"],
+ eyebrow:"Vision AI · Industry Mentoring",h:"자율주행을 위한 객체 인식 알고리즘 (YOLOv5)",
+ summary:"WE-Meet 산학 프로젝트로 HUINS 기업 멘토에게 YOLO 데이터셋 구축 방법을 배워, 신호등 3색·정지·속도 제한(40/80)·출발 표지·보행자 8개 클래스를 직접 라벨링하고 학습했습니다. 데이터가 부족한 클래스는 지도 서비스의 거리뷰 이미지를 캡처해 보강했습니다.",
+ flow:[["데이터 수집","거리뷰 캡처로 보강"],["labelImg","8개 클래스 라벨링"],["YOLOv5s","150 epoch 전이학습"],["검증","P 0.91 · R 0.94"],["실전 테스트","실제 환경 적용"]],
+ cols:[["데이터",["신호등(빨강·노랑·초록), 정지·40·80·출발 표지, 보행자","labelImg로 바운딩 박스 라벨링","라벨링 도구와 전처리 방식을 팀 내 통일"]],["학습",["사전학습 yolov5s 가중치로 전이학습","Mosaic·HSV·좌우 반전 증강","150 epoch, 검증 지표로 best 모델 선택"]],["결과",["Precision 0.91 · Recall 0.94","mAP@0.5 0.90 · mAP@0.5:0.95 0.74","모델 실전 테스트 담당"]]],
+ take:"모델 성능은 데이터에서 시작합니다. 여기서 만든 클래스 구성과 학습 경험이 3학년 RC카 프로젝트의 신호등·표지판 인식으로 이어졌습니다."},
+{id:"cifar",big:"CIFAR-100.",
+ kicker:"사전학습 없이 하루 GPU 1대로 학습하는 CIFAR-100 분류 챌린지, 세부 클래스와 상위 범주를 함께 맞히기",title:"CIFAR-100 챌린지",badge:["최종 1등","green"],
+ kv:[["기간","4학년 1학기"],["과목","시각지능학습 (A+)"],["팀","4인 · Team LLM"]],
+ tags:["PyTorch","ResNeXt","EfficientNet","Hierarchical Loss","W&B"],
+ eyebrow:"Vision AI · Model Training Challenge",h:"CIFAR-100 Classification Challenge (from scratch)",
+ summary:"외부 데이터와 사전학습 가중치 없이 GPU 1대·약 24시간 안에 학습해 Top-1 정확도와 Super-Class 정확도(Top-5 예측 중 정답과 같은 상위 범주 비율)를 함께 겨루는 과제였습니다. CNN 계열 실험을 맡아 ResNeXt의 상위 범주(coarse) head를 평가와 최종 예측에도 쓰도록 바꿨고, 팀은 최종 1등을 했습니다.",
+ flow:[["후보 비교","CNN · Transformer"],["베이스라인","팀원별 모델 학습"],["W&B","실험 기록·비교"],["계층 학습","fine + coarse head"],["최종","Top-1 + Super-Class"]],
+ cols:[["내 담당 (CNN)",["ResNeXt-29, EfficientNet-B0/B7 학습·비교","ResNeXt-29: Top-1 81.04%, Super-Class 66.21% (팀 베이스라인 중 Super-Class 최고)","2차 발표 자료 제작·발표"]],["계층 분류 개선",["fine 100클래스 + coarse 20범주 손실을 0.8 : 0.2로 함께 학습","coarse head를 평가에도 사용, 추론 시 상위 범주 예측으로 순위 재조정(reranking)","best Top-1 / Super-Class / 종합 체크포인트 분리 저장"]],["팀 결과",["7주차 평가 Top-1 85.99%, Super-Class 92.64%","최종 순위 1등","외부 데이터·사전학습 없이 GPU 1대, 약 24시간 제한"]]],
+ take:"정확도 하나만 올리는 대신 평가 기준이 무엇을 요구하는지 보고 모델 구조와 손실 함수를 맞췄습니다."},
 {id:"orda",big:"Orda.",img:"media/orda_offset.jpg",even:true,
  clips:[["media/orda_debug.jpg","","대회 당일 주행 중 디버그 화면 · 주행 모드·offset·조향값 오버레이(main_viz), ROI 안의 차선 검출점과 조향 기준선(offset_viz), 신호 인식과 모드 전환 로그","img"],["media/orda_track.jpg","","대회 트랙과 미션 구간 · 출발선, 화물 상차(신호등 인식), 갈림길, 주차 구역(ArUco), 라바콘","img"],["media/orda_car.jpg","","대회 지급 차량 AI LAB CAR-II","pic"],["media/orda_poster.jpg","","제1회 한양대학교 ERICA 자율주행 경진대회 포스터 (2026.01.16)","pic"]],
  kicker:"Camera와 2D LiDAR로 신호·갈림길·라바콘·주차 미션을 수행하는 소형 자율주행 차량",title:"ERICA 자율주행 대회",badge:["완주","green"],
@@ -504,6 +525,14 @@ const DRAW={
   c.strokeStyle=BLUE;c.lineWidth=2;c.setLineDash([5,5]);c.beginPath();c.moveTo(cx,cy);c.lineTo(mx,my);c.stroke();c.setLineDash([]);
   dot(c,mx,my,5,BLUE);c.fillStyle=INK+".9)";c.fillRect(cx-8,cy-6,16,22);
   label(c,"cluster ≤ 10 cm",l[0]-120,l[1]-22,AMBER);label(c,"target = midpoint",mx+12,my-10,BLUE);label(c,"RUBBERCONE",w*.06,h*.1,INK+".55)");
+ },
+ cifar(c,w,h){ // 32x32 tiles with top-5 predictions grouped by superclass
+  grid(c,w,h);const r=rng(11),cols=[BLUE,AMBER,GREEN,RED],s=Math.min(w,h)*.085;
+  for(let i=0;i<5;i++)for(let j=0;j<4;j++){const x=w*.07+i*(s+8),y=h*.16+j*(s+8);c.fillStyle=cols[(i+j*2)%4]+"55";c.fillRect(x,y,s,s);for(let k=0;k<10;k++){c.fillStyle=INK+(.05+r()*.2).toFixed(2)+")";c.fillRect(x+r()*s*.8,y+r()*s*.8,s*.2,s*.2)}}
+  const bx=w*.55,names=[["maple",.62],["oak",.17],["pine",.09],["willow",.05],["apple",.03]];
+  label(c,"top-5  ·  superclass: trees",bx,h*.14,INK+".55)");
+  names.forEach(([n,v],i)=>{const y=h*.22+i*h*.12,ok=i<4;c.fillStyle=ok?GREEN:RED;c.fillRect(bx,y,(w*.38)*Math.max(v,.04)/.62,10);label(c,n,bx,y-6,INK+".75)")});
+  label(c,"SC = 4/5",bx,h*.86,BLUE);label(c,"CIFAR-100 · from scratch",w*.07,h*.1,INK+".55)");
  },
  rc(c,w,h){ // camera frame: perspective lanes, traffic light bbox, fused readout
   const hz=h*.45;c.strokeStyle=INK+".5)";c.lineWidth=3;
